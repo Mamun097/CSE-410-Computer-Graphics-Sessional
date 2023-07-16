@@ -96,21 +96,21 @@ void drawOctahedron() {
     glRotated(90, 0, 1, 0);
     drawTriangle();
 
-    glRotated(180, 1, 0, 0);
-    glColor3f(0, 0.8, 1);
-    drawTriangle();
+    // glRotated(180, 1, 0, 0);
+    // glColor3f(0, 0.8, 1);
+    // drawTriangle();
 
-    glColor3ub(228, 0, 130);
-    glRotated(90, 0, 1, 0);
-    drawTriangle();
+    // glColor3ub(228, 0, 130);
+    // glRotated(90, 0, 1, 0);
+    // drawTriangle();
 
-    glColor3f(0, 0.8, 1);
-    glRotated(90, 0, 1, 0);
-    drawTriangle();
+    // glColor3f(0, 0.8, 1);
+    // glRotated(90, 0, 1, 0);
+    // drawTriangle();
 
-    glColor3ub(228, 0, 130);
-    glRotated(90, 0, 1, 0);
-    drawTriangle();
+    // glColor3ub(228, 0, 130);
+    // glRotated(90, 0, 1, 0);
+    // drawTriangle();
 
     glPopMatrix();
 }
@@ -173,7 +173,7 @@ std::vector<float> buildUnitPositiveX(int subdivision)
 }
 
 
-void drawSphereFace() {
+void drawFirstSphereFace() {
     std::vector<float> vertices = buildUnitPositiveX(6);
     glBegin(GL_POLYGON);
     for (int i = 0; i < vertices.size(); i += 3) {
@@ -183,6 +183,28 @@ void drawSphereFace() {
         glVertex3f(x, y, z);
     }
     glEnd();
+}
+
+void drawSphereFace() {
+    std::vector<float> vertices = buildUnitPositiveX(6);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < vertices.size(); i += 3) {
+        if (vertices[i + 1] < 0)continue;
+        GLfloat x = vertices[i];
+        GLfloat y = vertices[i + 1];
+        GLfloat z = vertices[i + 2];
+        glVertex3f(x, y, z);
+    }
+    glEnd();
+}
+
+void drawFirstSegment() {
+    glPushMatrix();
+    glTranslated((16.0 - step) / 16.0, 0.0, 0.0);
+    glScaled(scale / 16.0, scale / 16.0, scale / 16.0);
+    glScaled(1 / sqrt(3.0), 1 / sqrt(3.0), 1 / sqrt(3.0));
+    drawFirstSphereFace();
+    glPopMatrix();
 }
 
 void drawOneSegment() {
@@ -213,16 +235,16 @@ void drawSphere() {
 
     glColor3ub(170, 0, 0);
     glRotatef(90, 0, 0, 1);
-    drawOneSegment();
+    drawFirstSegment();
 
-    glColor3ub(170, 0, 0);
-    glRotatef(180, 0, 0, 1);
-    drawOneSegment();
+    // glColor3ub(170, 0, 0);
+    // glRotatef(180, 0, 0, 1);
+    // drawOneSegment();
 
     glPopMatrix();
 }
 
-void drawCylinderSegment(GLfloat radius, GLfloat height)
+void drawUpperCylinderSegment(GLfloat radius, GLfloat height)
 {
     float x = 0.0f;
     float y = 0.0f;
@@ -239,52 +261,79 @@ void drawCylinderSegment(GLfloat radius, GLfloat height)
     glEnd();
 }
 
-void CylinderSegmentScaling() {
+void drawLowerCylinderSegment(GLfloat radius, GLfloat height)
+{
+    float x = 0.0f;
+    float y = 0.0f;
+    float stepsize = 0.1f;
+
+    glColor3f(1, 1, 0);
+    glBegin(GL_QUAD_STRIP);
+    for (float angle = 0.0f; angle <= (M_PI - acos(-1 / 3)) * 90 / M_PI;angle += stepsize) {
+        x = radius * cos((angle * M_PI) / 180.0);
+        y = radius * sin((angle * M_PI) / 180.0);
+        glVertex3f(x, height / 2.0, y);
+        glVertex3f(x, -height / 2.0, y);
+    }
+    glEnd();
+}
+
+
+void UpperCylinderSegmentScaling() {
     glPushMatrix();
     glTranslated((16 - step) / (2 * 16), (16 - step) / (2 * 16), 0.0);
     glRotatef(45.0, 0, 0, 1);
     glRotatef(((M_PI - acos(-1 / 3)) * 180 / M_PI) / 2, 0, 1, 0);
-    drawCylinderSegment(cylinder_radius, cylinder_height);
+    drawUpperCylinderSegment(cylinder_radius, cylinder_height);
+    glPopMatrix();
+}
+
+void LowerCylinderSegmentScaling() {
+    glPushMatrix();
+    glTranslated((16 - step) / (2 * 16), (16 - step) / (2 * 16), 0.0);
+    glRotatef(45.0, 0, 0, 1);
+    glRotatef(((M_PI - acos(-1 / 3)) * 180 / M_PI) / 2, 0, 1, 0);
+    drawLowerCylinderSegment(cylinder_radius, cylinder_height);
     glPopMatrix();
 }
 
 void drawCylinder() {
     glPushMatrix();
 
-    CylinderSegmentScaling();
+    UpperCylinderSegmentScaling();
 
     glRotatef(90, 0, 1, 0);
-    CylinderSegmentScaling();
+    UpperCylinderSegmentScaling();
 
     glRotatef(90, 0, 1, 0);
-    CylinderSegmentScaling();
+    UpperCylinderSegmentScaling();
 
     glRotatef(90, 0, 1, 0);
-    CylinderSegmentScaling();
+    UpperCylinderSegmentScaling();
 
     glRotatef(90, 1, 0, 0);
-    CylinderSegmentScaling();
+    LowerCylinderSegmentScaling();
 
     glRotatef(90, 0, 0, 1);
-    CylinderSegmentScaling();
+    LowerCylinderSegmentScaling();
 
     glRotatef(90, 0, 0, 1);
-    CylinderSegmentScaling();
+    LowerCylinderSegmentScaling();
 
     glRotatef(90, 0, 0, 1);
-    CylinderSegmentScaling();
+    LowerCylinderSegmentScaling();
 
-    glRotatef(90, 1, 0, 0);
-    CylinderSegmentScaling();
+    // glRotatef(90, 1, 0, 0);
+    // CylinderSegmentScaling();
 
-    glRotatef(90, 0, 1, 0);
-    CylinderSegmentScaling();
+    // glRotatef(90, 0, 1, 0);
+    // CylinderSegmentScaling();
 
-    glRotatef(90, 0, 1, 0);
-    CylinderSegmentScaling();
+    // glRotatef(90, 0, 1, 0);
+    // CylinderSegmentScaling();
 
-    glRotatef(90, 0, 1, 0);
-    CylinderSegmentScaling();
+    // glRotatef(90, 0, 1, 0);
+    // CylinderSegmentScaling();
     glPopMatrix();
 }
 
